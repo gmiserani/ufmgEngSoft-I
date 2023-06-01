@@ -77,5 +77,27 @@ public class Voter {
           throw new Warning("Número de candidato inválido");
         election.computeVote(candidate, this);
       }
+      else if (type.equals("Governor"))
+      if (number == 0)
+        election.computeNullVote("Governor", this);
+      else if (isProtestVote)
+        election.computeProtestVote("Governor", this);
+      else {
+        Governor candidate = election.getGovernorByNumber(this.state, number);
+        if (candidate == null)
+          throw new Warning("Número de candidato inválido");
+        election.computeVote(candidate, this);
+      }
+      else if (type.equals("Senate"))
+      if (number == 0)
+        election.computeNullVote("Senate", this);
+      else if (isProtestVote)
+        election.computeProtestVote("Senate", this);
+      else {
+        Senate candidate = election.getSenateByNumber(this.state, number);
+        if (candidate == null)
+          throw new Warning("Número de candidato inválido");
+        election.computeVote(candidate, this);
+      }
   }
 }
