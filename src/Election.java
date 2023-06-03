@@ -7,6 +7,8 @@ import java.text.DecimalFormat;
 public class Election {
   private final String password;
 
+  public Urna urna;
+ 
   private boolean status;
 
   private int nullPresidentVotes;
@@ -15,6 +17,8 @@ public class Election {
 
   private int nullGovernorVotes;
 
+  private int nullMayorVotes;
+
   private int nullSenateVotes;
 
   private int presidentProtestVotes;
@@ -22,6 +26,8 @@ public class Election {
   private int federalDeputyProtestVotes;
 
   private int governorProtestVotes;
+
+  private int mayorProtestVotes;
 
   private int senateProtestVotes;
 
@@ -33,15 +39,9 @@ public class Election {
 
   private Map<Voter, Integer> votersGovernor = new HashMap<Voter, Integer>();
 
+  private Map<Voter, Integer> votersMayor = new HashMap<Voter, Integer>();
+
   private Map<Voter, Integer> votersSenate = new HashMap<Voter, Integer>();
-
-  public Map<Integer, President> presidentCandidates = new HashMap<Integer, President>();
-
-  public Map<String, FederalDeputy> federalDeputyCandidates = new HashMap<String, FederalDeputy>();
-  
-  public Map<String, Governor> governorCandidates = new HashMap<String, Governor>();
-
-  public Map<String, Senate> senateCandidates = new HashMap<String, Senate>();
 
   private Map<Voter, FederalDeputy> tempFDVote = new HashMap<Voter, FederalDeputy>();
 
@@ -49,9 +49,15 @@ public class Election {
 
   public static class Builder {
     protected String password;
+    protected Urna urna;
 
     public Builder password(String password) {
       this.password = password;
+      return this;
+    }
+
+    public Builder urna(Urna urna) {
+      this.urna = urna;
       return this;
     }
 
@@ -64,6 +70,7 @@ public class Election {
 
       return new Election(this.password);
     }
+
   }
 
   protected Election(
@@ -73,11 +80,13 @@ public class Election {
     this.nullFederalDeputyVotes = 0;
     this.nullPresidentVotes = 0;
     this.nullGovernorVotes = 0;
+    this.nullMayorVotes = 0;
     this.nullSenateVotes = 0;
     this.presidentProtestVotes = 0;
     this.federalDeputyProtestVotes = 0;
     this.senateProtestVotes = 0;
     this.governorProtestVotes = 0;
+    this.mayorProtestVotes = 0;
   }
 
   private Boolean isValid(String password) {
@@ -128,6 +137,12 @@ public class Election {
 
       candidate.numVotes++;
       votersGovernor.put(voter, 1);
+    }else if (candidate instanceof Mayor) {
+      if (votersMayor.get(voter) != null && votersMayor.get(voter) >= 1)
+        throw new StopTrap("Você não pode votar mais de uma vez para prefeito");
+
+      candidate.numVotes++;
+      votersMayor.put(voter, 1);
     }
   };
 
@@ -153,7 +168,13 @@ public class Election {
 
         this.nullGovernorVotes++;
         votersGovernor.put(voter, 1);
-    }else if (type.equals("Senate")) {
+    } else if (type.equals("Mayor")) {
+      if (this.votersMayor.get(voter) != null && votersMayor.get(voter) >= 1)
+        throw new StopTrap("Você não pode votar mais de uma vez para prefeito");
+
+      this.nullMayorVotes++;
+      votersMayor.put(voter, 1);
+    } else if (type.equals("Senate")) {
       if (this.votersSenate.get(voter) != null && this.votersSenate.get(voter) >= 2)
         throw new StopTrap("Você não pode votar mais de uma vez para senador");
 
@@ -188,7 +209,13 @@ public class Election {
 
         this.governorProtestVotes++;
         votersGovernor.put(voter, 1);
-    }else if (type.equals("Senate")) {
+    }else if (type.equals("Mayor")) {
+      if (this.votersMayor.get(voter) != null && votersMayor.get(voter) >= 1)
+        throw new StopTrap("Você não pode votar mais de uma vez para prefeito");
+
+      this.mayorProtestVotes++;
+      votersMayor.put(voter, 1);
+  } else if (type.equals("Senate")) {
       if (this.votersSenate.get(voter) != null && this.votersSenate.get(voter) >= 2)
         throw new StopTrap("Você não pode votar mais de uma vez para senado");
 
@@ -219,17 +246,17 @@ public class Election {
   }
 
   public President getPresidentByNumber(int number) {
-    return this.presidentCandidates.get(number);
+    return urna.presidentCandidates.get(number);
   }
 
   public void addPresidentCandidate(President candidate, String password) {
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    if (this.presidentCandidates.get(candidate.number) != null)
+    if (urna.presidentCandidates.get(candidate.number) != null)
       throw new Warning("Numero de candidato indisponível");
 
-    this.presidentCandidates.put(candidate.number, candidate);
+    urna.presidentCandidates.put(candidate.number, candidate);
 
   }
 
@@ -237,69 +264,102 @@ public class Election {
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    this.presidentCandidates.remove(candidate.number);
+    urna.presidentCandidates.remove(candidate.number);
   }
 
   public Senate getSenateByNumber(String state, int number) {
-    return this.senateCandidates.get(state + number);
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(state);
+    return urnaEstado.senateCandidates.get(number);
   }
 
   public void addSenateCandidate(Senate candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    if (this.senateCandidates.get(candidate.state + candidate.number) != null)
+    if (urnaEstado.senateCandidates.get(candidate.number) != null)
       throw new Warning("Numero de candidato indisponível");
 
-    this.senateCandidates.put(candidate.state + candidate.number, candidate);
+    urnaEstado.senateCandidates.put(candidate.number, candidate);
   }
 
   public void removeSenateCandidate(Senate candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    this.senateCandidates.remove(candidate.state + candidate.number);
+    urnaEstado.senateCandidates.remove(candidate.number);
   }
 
   public FederalDeputy getFederalDeputyByNumber(String state, int number) {
-    return this.federalDeputyCandidates.get(state + number);
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(state);
+    if (!isValid(password))
+    return urnaEstado.federalDeputyCandidates.get(number);
   }
 
   public void addFederalDeputyCandidate(FederalDeputy candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    if (this.federalDeputyCandidates.get(candidate.state + candidate.number) != null)
+    if (urnaEstado.federalDeputyCandidates.get(candidate.number) != null)
       throw new Warning("Numero de candidato indisponível");
 
-    this.federalDeputyCandidates.put(candidate.state + candidate.number, candidate);
+    urnaEstado.federalDeputyCandidates.put(candidate.number, candidate);
   }
 
   public void removeFederalDeputyCandidate(FederalDeputy candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    this.federalDeputyCandidates.remove(candidate.state + candidate.number);
+    urnaEstado.federalDeputyCandidates.remove(candidate.number);
+  }
+
+  public Mayor getMayorByNumber(String state, String city, int number) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(state);
+    return urnaEstado.mayorCandidates.get(city + number);
+  }
+
+  public void addMayorCandidate(Mayor candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
+    if (!isValid(password))
+      throw new Warning("Senha inválida");
+
+    if (urnaEstado.mayorCandidates.get(candidate.city + candidate.number) != null)
+      throw new Warning("Numero de candidato indisponível");
+    urnaEstado.mayorCandidates.put(candidate.city + candidate.number, candidate);
+  }
+
+  public void removeMayorCandidate(Mayor candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
+    if (!isValid(password))
+      throw new Warning("Senha inválida");
+
+    urnaEstado.mayorCandidates.remove(candidate.city + candidate.number);
   }
 
   public Governor getGovernorByNumber(String state, int number) {
-    return this.governorCandidates.get(state + number);
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(state);
+    return urnaEstado.governorCandidates.get(number);
   }
 
   public void addGovernorCandidate(Governor candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    if (this.governorCandidates.get(candidate.state + candidate.number) != null)
+    if (urnaEstado.governorCandidates.get(candidate.number) != null)
       throw new Warning("Numero de candidato indisponível");
-    this.governorCandidates.put(candidate.state + candidate.number, candidate);
+    urnaEstado.governorCandidates.put(candidate.number, candidate);
   }
 
   public void removeGovernorCandidate(Governor candidate, String password) {
+    UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    this.governorCandidates.remove(candidate.state + candidate.number);
+    urnaEstado.governorCandidates.remove(candidate.number);
   }
 
 
@@ -315,38 +375,45 @@ public class Election {
     var federalDeputyRank = new ArrayList<FederalDeputy>();
     var governorRank = new ArrayList<Governor>();
     var senateRank = new ArrayList<Senate>();
+    var mayorRank = new ArrayList<Mayor>();
 
     var builder = new StringBuilder();
 
     builder.append("Resultado da eleicao:\n");
 
     int totalVotesP = presidentProtestVotes + nullPresidentVotes;
-    for (Map.Entry<Integer, President> candidateEntry : presidentCandidates.entrySet()) {
+    for (Map.Entry<String, President> candidateEntry : urna.presidentCandidates.entrySet()) {
       President candidate = candidateEntry.getValue();
       totalVotesP += candidate.numVotes;
       presidentRank.add(candidate);
     }
 
-    int totalVotesFD = federalDeputyProtestVotes + nullFederalDeputyVotes;
-    for (Map.Entry<String, FederalDeputy> candidateEntry : federalDeputyCandidates.entrySet()) {
+    
+    for(Map.Entry<String, UrnaEstadual> stateUrnas : urna.UrnasMap.entrySet()){
+      int totalVotesFD = federalDeputyProtestVotes + nullFederalDeputyVotes;
+      UrnaEstadual UrnaEstado = stateUrnas.getValue();
+      for (Map.Entry<String, FederalDeputy> candidateEntry : UrnaEstado.federalDeputyCandidates.entrySet()) {
       FederalDeputy candidate = candidateEntry.getValue();
       totalVotesFD += candidate.numVotes;
       federalDeputyRank.add(candidate);
-    }
+      }
 
-    int totalVotesG = governorProtestVotes + nullGovernorVotes;
-    for (Map.Entry<String, Governor> candidateEntry : governorCandidates.entrySet()) {
-      Governor candidate = candidateEntry.getValue();
-      totalVotesG += candidate.numVotes;
-      governorRank.add(candidate);
-    }
+    
+      int totalVotesM = mayorProtestVotes + nullMayorVotes;
+      for (Map.Entry<String, Mayor> candidateEntry : UrnaEstado.mayorCandidates.entrySet()) {
+        Mayor candidate = candidateEntry.getValue();
+        totalVotesM += candidate.numVotes;
+        mayorRank.add(candidate);
+      }
 
-    int totalVotesS = senateProtestVotes + nullSenateVotes;
-    for (Map.Entry<String, Senate> candidateEntry : senateCandidates.entrySet()) {
-      Senate candidate = candidateEntry.getValue();
-      totalVotesS += candidate.numVotes;
-      senateRank.add(candidate);
+      int totalVotesS = senateProtestVotes + nullSenateVotes;
+      for (Map.Entry<String, Senate> candidateEntry : UrnaEstado.senateCandidates.entrySet()) {
+        Senate candidate = candidateEntry.getValue();
+        totalVotesS += candidate.numVotes;
+        senateRank.add(candidate);
+      }
     }
+    
 
     var sortedFederalDeputyRank = federalDeputyRank.stream()
         .sorted((o1, o2) -> o1.numVotes == o2.numVotes ? 0 : o1.numVotes < o2.numVotes ? 1 : -1)
@@ -357,6 +424,10 @@ public class Election {
         .collect(Collectors.toList());
 
     var sortedGovernorRank = governorRank.stream()
+        .sorted((o1, o2) -> o1.numVotes == o2.numVotes ? 0 : o1.numVotes < o2.numVotes ? 1 : -1)
+        .collect(Collectors.toList());
+
+    var sortedMayorRank = mayorRank.stream()
         .sorted((o1, o2) -> o1.numVotes == o2.numVotes ? 0 : o1.numVotes < o2.numVotes ? 1 : -1)
         .collect(Collectors.toList());
 
@@ -450,6 +521,26 @@ public class Election {
     builder.append("\n\n  Governador eleito:\n");
     builder.append("  " + electGovernor.name + " do " + electGovernor.party + " com "
         + decimalFormater.format((double) electGovernor.numVotes / (double) totalVotesG * 100) + "% dos votos\n");
+    builder.append("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+
+    builder.append("  Votos prefeito:\n");
+    builder.append("  Total: " + totalVotesM + "\n");
+    builder.append("  Votos nulos: " + nullMayorVotes + " ("
+        + decimalFormater.format((double) nullMayorVotes / (double) totalVotesM * 100) + "%)\n");
+    builder.append("  Votos brancos: " + mayorProtestVotes + " ("
+        + decimalFormater.format((double) mayorProtestVotes / (double) totalVotesM * 100) + "%)\n");
+    builder.append("\tNumero - Partido - Nome  - Votos  - % dos votos totais\n");
+    for (Mayor candidate : sortedMayorRank) {
+      builder.append("\t" + candidate.number + " - " + candidate.party + " - " + candidate.name + " - "
+          + candidate.numVotes + " - "
+          + decimalFormater.format((double) candidate.numVotes / (double) totalVotesM * 100)
+          + "%\n");
+    }
+
+    Mayor electMayor = sortedMayorRank.get(0);
+    builder.append("\n\n  Prefeito eleito:\n");
+    builder.append("  " + electMayor.name + " do " + electMayor.party + " com "
+        + decimalFormater.format((double) electMayor.numVotes / (double) totalVotesM * 100) + "% dos votos\n");
 
     return builder.toString();
   }

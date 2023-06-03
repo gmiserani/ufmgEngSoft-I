@@ -5,6 +5,8 @@ public class Voter {
 
   protected final String state;
 
+  public String city;
+
   public static class Builder {
     private String electoralCard;
     private String name;
@@ -43,6 +45,8 @@ public class Voter {
 
       if (state.isEmpty())
         throw new IllegalArgumentException("state mustn't be empty");
+
+      
 
       return new Voter(electoralCard, name, state);
     }
@@ -95,6 +99,16 @@ public class Voter {
         election.computeProtestVote("Senate", this);
       else {
         Senate candidate = election.getSenateByNumber(this.state, number);
+        if (candidate == null)
+          throw new Warning("Número de candidato inválido");
+        election.computeVote(candidate, this);
+      }else if (type.equals("Mayor"))
+      if (number == 0)
+        election.computeNullVote("Mayor", this);
+      else if (isProtestVote)
+        election.computeProtestVote("Mayor", this);
+      else {
+        Mayor candidate = election.getMayorByNumber(this.state, this.city, number);
         if (candidate == null)
           throw new Warning("Número de candidato inválido");
         election.computeVote(candidate, this);
