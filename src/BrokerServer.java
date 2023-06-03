@@ -1,7 +1,7 @@
 import java.util.Map;
 
 public class BrokerServer{
-	UrnaEstadual urna;
+	UrnaEstadual urna = new UrnaEstadual();
 
 	public BrokerServer(String estado, Map<String, UrnaEstadual> UrnasMap) {
 		urna = UrnasMap.get(estado);

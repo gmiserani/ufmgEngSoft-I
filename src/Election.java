@@ -5,6 +5,9 @@ import java.util.stream.Collectors;
 import java.text.DecimalFormat;
 
 public class Election {
+  public static void print(String output) {
+    System.out.println(output);
+  }
   private final String password;
 
   public Urna urna;
@@ -291,11 +294,11 @@ public class Election {
     urnaEstado.senateCandidates.remove(candidate.number);
   }
 
-  public FederalDeputy getFederalDeputyByNumber(String state, int number) {
+  public FederalDeputy getFederalDeputyByNumber(String state, Integer number) {
     UrnaEstadual urnaEstado = urna.UrnasMap.get(state);
-    if (!isValid(password))
     return urnaEstado.federalDeputyCandidates.get(number);
   }
+
 
   public void addFederalDeputyCandidate(FederalDeputy candidate, String password) {
     UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
@@ -318,7 +321,7 @@ public class Election {
 
   public Mayor getMayorByNumber(String state, String city, int number) {
     UrnaEstadual urnaEstado = urna.UrnasMap.get(state);
-    return urnaEstado.mayorCandidates.get(city + number);
+    return urnaEstado.mayorCandidates.get(number);
   }
 
   public void addMayorCandidate(Mayor candidate, String password) {
@@ -326,9 +329,9 @@ public class Election {
     if (!isValid(password))
       throw new Warning("Senha inválida");
 
-    if (urnaEstado.mayorCandidates.get(candidate.city + candidate.number) != null)
+    if (urnaEstado.mayorCandidates.get(candidate.number) != null)
       throw new Warning("Numero de candidato indisponível");
-    urnaEstado.mayorCandidates.put(candidate.city + candidate.number, candidate);
+    urnaEstado.mayorCandidates.put(candidate.number, candidate);
   }
 
   public void removeMayorCandidate(Mayor candidate, String password) {
@@ -382,35 +385,40 @@ public class Election {
     builder.append("Resultado da eleicao:\n");
 
     int totalVotesP = presidentProtestVotes + nullPresidentVotes;
-    for (Map.Entry<String, President> candidateEntry : urna.presidentCandidates.entrySet()) {
+    for (Map.Entry<Integer, President> candidateEntry : urna.presidentCandidates.entrySet()) {
       President candidate = candidateEntry.getValue();
       totalVotesP += candidate.numVotes;
       presidentRank.add(candidate);
     }
 
-    
+    int totalVotesFD = federalDeputyProtestVotes + nullFederalDeputyVotes;
+    int totalVotesM = mayorProtestVotes + nullMayorVotes;
+    int totalVotesS = senateProtestVotes + nullSenateVotes;
+    int totalVotesG = governorProtestVotes + nullGovernorVotes;
     for(Map.Entry<String, UrnaEstadual> stateUrnas : urna.UrnasMap.entrySet()){
-      int totalVotesFD = federalDeputyProtestVotes + nullFederalDeputyVotes;
       UrnaEstadual UrnaEstado = stateUrnas.getValue();
-      for (Map.Entry<String, FederalDeputy> candidateEntry : UrnaEstado.federalDeputyCandidates.entrySet()) {
+      for (Map.Entry<Integer, FederalDeputy> candidateEntry : UrnaEstado.federalDeputyCandidates.entrySet()) {
       FederalDeputy candidate = candidateEntry.getValue();
       totalVotesFD += candidate.numVotes;
       federalDeputyRank.add(candidate);
       }
 
-    
-      int totalVotesM = mayorProtestVotes + nullMayorVotes;
-      for (Map.Entry<String, Mayor> candidateEntry : UrnaEstado.mayorCandidates.entrySet()) {
+      for (Map.Entry<Integer, Mayor> candidateEntry : UrnaEstado.mayorCandidates.entrySet()) {
         Mayor candidate = candidateEntry.getValue();
         totalVotesM += candidate.numVotes;
         mayorRank.add(candidate);
       }
 
-      int totalVotesS = senateProtestVotes + nullSenateVotes;
-      for (Map.Entry<String, Senate> candidateEntry : UrnaEstado.senateCandidates.entrySet()) {
+      for (Map.Entry<Integer, Senate> candidateEntry : UrnaEstado.senateCandidates.entrySet()) {
         Senate candidate = candidateEntry.getValue();
         totalVotesS += candidate.numVotes;
         senateRank.add(candidate);
+      }
+
+      for (Map.Entry<Integer, Governor> candidateEntry : UrnaEstado.governorCandidates.entrySet()) {
+        Governor candidate = candidateEntry.getValue();
+        totalVotesG += candidate.numVotes;
+        governorRank.add(candidate);
       }
     }
     

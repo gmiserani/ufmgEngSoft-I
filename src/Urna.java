@@ -6,7 +6,23 @@ import java.io.InputStreamReader;
 import java.io.File;
 import static java.lang.System.exit;
 
-public class Urna {
+public class Urna{
+  public static  Election eleicao;
+
+  public static class Builder {
+    protected Election eleicao;
+
+    public Builder election(Election election) {
+      this.eleicao = election;
+      return this;
+    }
+  }
+
+
+
+
+
+
   private static final BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
 
   private static boolean exit = false;
@@ -82,7 +98,7 @@ public class Urna {
       print("(1) Confirmar\n(2) Mudar voto");
       int confirm = readInt();
       if (confirm == 1) {
-        voter.vote(0, currentElection, "President", true);
+        voter.vote(0, eleicao, "President", true);
         return true;
       } else
         votePresident(voter);
@@ -95,14 +111,14 @@ public class Urna {
           print("(1) Confirmar\n(2) Mudar voto");
           int confirm = readInt();
           if (confirm == 1) {
-            voter.vote(0, currentElection, "President", false);
+            voter.vote(0, eleicao, "President", false);
             return true;
           } else
             votePresident(voter);
         }
 
         // Normal
-        President candidate = currentElection.getPresidentByNumber(voteNumber);
+        President candidate = eleicao.getPresidentByNumber(voteNumber);
         if (candidate == null) {
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
@@ -112,7 +128,7 @@ public class Urna {
         print("(1) Confirmar\n(2) Mudar voto");
         int confirm = readInt();
         if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "President", false);
+          voter.vote(voteNumber, eleicao, "President", false);
           return true;
         } else if (confirm == 2)
           return votePresident(voter);
@@ -134,257 +150,257 @@ public class Urna {
   public static UrnaEstadual estateElections(Voter voter){
     //Chamar o broker que vai retornar a urna daquele estado
     BrokerServer broker = new BrokerServer(voter.state, UrnasMap);
-    UrnaEstadual urna = broker.returnResult();
-    return urna;
+    UrnaEstadual urnaEstadual = broker.returnResult();
+    return urnaEstadual;
   }
 
-  private static boolean voteGovernor(Voter voter) {
-    print("(ext) Desistir");
-    print("Digite o número do candidato escolhido por você para governador:");
-    String vote = readString();
-    if (vote.equals("ext"))
-      throw new StopTrap("Saindo da votação");
-    // Branco
-    else if (vote.equals("br")) {
-      print("Você está votando branco\n");
-      print("(1) Confirmar\n(2) Mudar voto");
-      int confirm = readInt();
-      if (confirm == 1) {
-        voter.vote(0, currentElection, "Governor", true);
-        return true;
-      } else
-        voteGovernor(voter);
-    } else {
-      try {
-        int voteNumber = Integer.parseInt(vote);
-        // Nulo
-        if (voteNumber == 0) {
-          print("Você está votando nulo\n");
-          print("(1) Confirmar\n(2) Mudar voto");
-          int confirm = readInt();
-          if (confirm == 1) {
-            voter.vote(0, currentElection, "Governor", false);
-            return true;
-          } else
-            voteGovernor(voter);
-        }
+  // private static boolean voteGovernor(Voter voter) {
+  //   print("(ext) Desistir");
+  //   print("Digite o número do candidato escolhido por você para governador:");
+  //   String vote = readString();
+  //   if (vote.equals("ext"))
+  //     throw new StopTrap("Saindo da votação");
+  //   // Branco
+  //   else if (vote.equals("br")) {
+  //     print("Você está votando branco\n");
+  //     print("(1) Confirmar\n(2) Mudar voto");
+  //     int confirm = readInt();
+  //     if (confirm == 1) {
+  //       voter.vote(0, eleicao, "Governor", true);
+  //       return true;
+  //     } else
+  //       voteGovernor(voter);
+  //   } else {
+  //     try {
+  //       int voteNumber = Integer.parseInt(vote);
+  //       // Nulo
+  //       if (voteNumber == 0) {
+  //         print("Você está votando nulo\n");
+  //         print("(1) Confirmar\n(2) Mudar voto");
+  //         int confirm = readInt();
+  //         if (confirm == 1) {
+  //           voter.vote(0, eleicao, "Governor", false);
+  //           return true;
+  //         } else
+  //           voteGovernor(voter);
+  //       }
 
-        // Normal
-        Governor candidate = currentElection.getGovernorByNumber(voter.state, voteNumber);
-        if (candidate == null) { 
-          print("Nenhum candidato encontrado com este número, tente novamente");
-          print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
-          return voteGovernor(voter);
-        }
-        print(candidate.name + " do " + candidate.party + "\n");
-        print("(1) Confirmar\n(2) Mudar voto");
-        int confirm = readInt();
-        if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "Governor", false);
-          return true;
-        } else if (confirm == 2)
-          return voteGovernor(voter);
-      } catch (Warning e) {
-        print(e.getMessage());
-        return voteGovernor(voter);
-      } catch (Error e) {
-        print(e.getMessage());
-        throw e;
-      } catch (Exception e) {
-        print("Ocorreu um erro inesperado");
-        return false;
-      }
-    }
-    return true;
+  //       // Normal
+  //       Governor candidate = eleicao.getGovernorByNumber(voter.state, voteNumber);
+  //       if (candidate == null) { 
+  //         print("Nenhum candidato encontrado com este número, tente novamente");
+  //         print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+  //         return voteGovernor(voter);
+  //       }
+  //       print(candidate.name + " do " + candidate.party + "\n");
+  //       print("(1) Confirmar\n(2) Mudar voto");
+  //       int confirm = readInt();
+  //       if (confirm == 1) {
+  //         voter.vote(voteNumber, eleicao, "Governor", false);
+  //         return true;
+  //       } else if (confirm == 2)
+  //         return voteGovernor(voter);
+  //     } catch (Warning e) {
+  //       print(e.getMessage());
+  //       return voteGovernor(voter);
+  //     } catch (Error e) {
+  //       print(e.getMessage());
+  //       throw e;
+  //     } catch (Exception e) {
+  //       print("Ocorreu um erro inesperado");
+  //       return false;
+  //     }
+  //   }
+  //   return true;
 
-  }
+  // }
 
-  private static boolean voteMayor(Voter voter) {
-    print("(ext) Desistir");
-    print("Digite o número do candidato escolhido por você para prefeito:");
-    String vote = readString();
-    if (vote.equals("ext"))
-      throw new StopTrap("Saindo da votação");
-    // Branco
-    else if (vote.equals("br")) {
-      print("Você está votando branco\n");
-      print("(1) Confirmar\n(2) Mudar voto");
-      int confirm = readInt();
-      if (confirm == 1) {
-        voter.vote(0, currentElection, "Mayor", true);
-        return true;
-      } else
-        voteMayor(voter);
-    } else {
-      try {
-        int voteNumber = Integer.parseInt(vote);
-        // Nulo
-        if (voteNumber == 0) {
-          print("Você está votando nulo\n");
-          print("(1) Confirmar\n(2) Mudar voto");
-          int confirm = readInt();
-          if (confirm == 1) {
-            voter.vote(0, currentElection, "Mayor", false);
-            return true;
-          } else
-            voteMayor(voter);
-        }
+  // private static boolean voteMayor(Voter voter) {
+  //   print("(ext) Desistir");
+  //   print("Digite o número do candidato escolhido por você para prefeito:");
+  //   String vote = readString();
+  //   if (vote.equals("ext"))
+  //     throw new StopTrap("Saindo da votação");
+  //   // Branco
+  //   else if (vote.equals("br")) {
+  //     print("Você está votando branco\n");
+  //     print("(1) Confirmar\n(2) Mudar voto");
+  //     int confirm = readInt();
+  //     if (confirm == 1) {
+  //       voter.vote(0, eleicao, "Mayor", true);
+  //       return true;
+  //     } else
+  //       voteMayor(voter);
+  //   } else {
+  //     try {
+  //       int voteNumber = Integer.parseInt(vote);
+  //       // Nulo
+  //       if (voteNumber == 0) {
+  //         print("Você está votando nulo\n");
+  //         print("(1) Confirmar\n(2) Mudar voto");
+  //         int confirm = readInt();
+  //         if (confirm == 1) {
+  //           voter.vote(0, eleicao, "Mayor", false);
+  //           return true;
+  //         } else
+  //           voteMayor(voter);
+  //       }
 
-        // Normal
-        Mayor candidate = currentElection.getMayorByNumber(voter.city, voteNumber);
-        if (candidate == null) { 
-          print("Nenhum candidato encontrado com este número, tente novamente");
-          print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
-          return voteMayor(voter);
-        }
-        print(candidate.name + " do " + candidate.party + "\n");
-        print("(1) Confirmar\n(2) Mudar voto");
-        int confirm = readInt();
-        if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "Mayor", false);
-          return true;
-        } else if (confirm == 2)
-          return voteMayor(voter);
-      } catch (Warning e) {
-        print(e.getMessage());
-        return voteMayor(voter);
-      } catch (Error e) {
-        print(e.getMessage());
-        throw e;
-      } catch (Exception e) {
-        print("Ocorreu um erro inesperado");
-        return false;
-      }
-    }
-    return true;
-  }
+  //       // Normal
+  //       Mayor candidate = eleicao.getMayorByNumber(voter.state, voter.city, voteNumber);
+  //       if (candidate == null) { 
+  //         print("Nenhum candidato encontrado com este número, tente novamente");
+  //         print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+  //         return voteMayor(voter);
+  //       }
+  //       print(candidate.name + " do " + candidate.party + "\n");
+  //       print("(1) Confirmar\n(2) Mudar voto");
+  //       int confirm = readInt();
+  //       if (confirm == 1) {
+  //         voter.vote(voteNumber, eleicao, "Mayor", false);
+  //         return true;
+  //       } else if (confirm == 2)
+  //         return voteMayor(voter);
+  //     } catch (Warning e) {
+  //       print(e.getMessage());
+  //       return voteMayor(voter);
+  //     } catch (Error e) {
+  //       print(e.getMessage());
+  //       throw e;
+  //     } catch (Exception e) {
+  //       print("Ocorreu um erro inesperado");
+  //       return false;
+  //     }
+  //   }
+  //   return true;
+  // }
 
-  private static boolean voteFederalDeputy(Voter voter, int counter) {
-    print("(ext) Desistir");
-    print("Digite o número do " + counter + "º candidato escolhido por você para deputado federal:\n");
-    String vote = readString();
-    if (vote.equals("ext"))
-      throw new StopTrap("Saindo da votação");
-    // Branco
-    if (vote.equals("br")) {
-      print("Você está votando branco\n");
-      print("(1) Confirmar\n(2) Mudar voto");
-      int confirm = readInt();
-      if (confirm == 1) {
-        voter.vote(0, currentElection, "FederalDeputy", true);
-        return true;
-      } else
-        return voteFederalDeputy(voter, counter);
-    } else {
-      try {
-        int voteNumber = Integer.parseInt(vote);
-        // Nulo
-        if (voteNumber == 0) {
-          print("Você está votando nulo\n");
-          print("(1) Confirmar\n(2) Mudar voto\n");
-          int confirm = readInt();
-          if (confirm == 1) {
-            voter.vote(0, currentElection, "FederalDeputy", false);
-            return true;
-          } else
-            return voteFederalDeputy(voter, counter);
-        }
+  // private static boolean voteFederalDeputy(Voter voter, int counter) {
+  //   print("(ext) Desistir");
+  //   print("Digite o número do " + counter + "º candidato escolhido por você para deputado federal:\n");
+  //   String vote = readString();
+  //   if (vote.equals("ext"))
+  //     throw new StopTrap("Saindo da votação");
+  //   // Branco
+  //   if (vote.equals("br")) {
+  //     print("Você está votando branco\n");
+  //     print("(1) Confirmar\n(2) Mudar voto");
+  //     int confirm = readInt();
+  //     if (confirm == 1) {
+  //       voter.vote(0, eleicao, "FederalDeputy", true);
+  //       return true;
+  //     } else
+  //       return voteFederalDeputy(voter, counter);
+  //   } else {
+  //     try {
+  //       int voteNumber = Integer.parseInt(vote);
+  //       // Nulo
+  //       if (voteNumber == 0) {
+  //         print("Você está votando nulo\n");
+  //         print("(1) Confirmar\n(2) Mudar voto\n");
+  //         int confirm = readInt();
+  //         if (confirm == 1) {
+  //           voter.vote(0, eleicao, "FederalDeputy", false);
+  //           return true;
+  //         } else
+  //           return voteFederalDeputy(voter, counter);
+  //       }
 
-        // Normal
-        FederalDeputy candidate = currentElection.getFederalDeputyByNumber(voter.state, voteNumber);
-        if (candidate == null) {
-          print("Nenhum candidato encontrado com este número, tente novamente");
-          print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
-          return voteFederalDeputy(voter, counter);
-        }
-        print(candidate.name + " do " + candidate.party + "(" + candidate.state + ")\n");
-        print("(1) Confirmar\n(2) Mudar voto");
-        int confirm = readInt();
-        if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "FederalDeputy", false);
-          return true;
-        } else if (confirm == 2)
-          return voteFederalDeputy(voter, counter);
-      } catch (Warning e) {
-        print(e.getMessage());
-        return voteFederalDeputy(voter, counter);
-      } catch (Error e) {
-        print(e.getMessage());
-        throw e;
-      } catch (Exception e) {
-        print("Ocorreu um erro inesperado");
-        return false;
-      }
-    }
-    return true;
+  //       // Normal
+  //       FederalDeputy candidate = eleicao.getFederalDeputyByNumber(voter.state, voteNumber);
+  //       if (candidate == null) {
+  //         print("Nenhum candidato encontrado com este número, tente novamente");
+  //         print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+  //         return voteFederalDeputy(voter, counter);
+  //       }
+  //       print(candidate.name + " do " + candidate.party + "(" + candidate.state + ")\n");
+  //       print("(1) Confirmar\n(2) Mudar voto");
+  //       int confirm = readInt();
+  //       if (confirm == 1) {
+  //         voter.vote(voteNumber, eleicao, "FederalDeputy", false);
+  //         return true;
+  //       } else if (confirm == 2)
+  //         return voteFederalDeputy(voter, counter);
+  //     } catch (Warning e) {
+  //       print(e.getMessage());
+  //       return voteFederalDeputy(voter, counter);
+  //     } catch (Error e) {
+  //       print(e.getMessage());
+  //       throw e;
+  //     } catch (Exception e) {
+  //       print("Ocorreu um erro inesperado");
+  //       return false;
+  //     }
+  //   }
+  //   return true;
 
-  }
+  // }
 
-  private static boolean voteSenate(Voter voter, int counter) {
-    print("(ext) Desistir");
-    print("Digite o número do " + counter + "º candidato escolhido por você para senador:\n");
-    String vote = readString();
-    if (vote.equals("ext"))
-      throw new StopTrap("Saindo da votação");
-    // Branco
-    if (vote.equals("br")) {
-      print("Você está votando branco\n");
-      print("(1) Confirmar\n(2) Mudar voto");
-      int confirm = readInt();
-      if (confirm == 1) {
-        voter.vote(0, currentElection, "Senate", true);
-        return true;
-      } else
-        return voteSenate(voter, counter);
-    } else {
-      try {
-        int voteNumber = Integer.parseInt(vote);
-        // Nulo
-        if (voteNumber == 0) {
-          print("Você está votando nulo\n");
-          print("(1) Confirmar\n(2) Mudar voto\n");
-          int confirm = readInt();
-          if (confirm == 1) {
-            voter.vote(0, currentElection, "Senate", false);
-            return true;
-          } else
-            return voteSenate(voter, counter);
-        }
+  // private static boolean voteSenate(Voter voter, int counter) {
+  //   print("(ext) Desistir");
+  //   print("Digite o número do " + counter + "º candidato escolhido por você para senador:\n");
+  //   String vote = readString();
+  //   if (vote.equals("ext"))
+  //     throw new StopTrap("Saindo da votação");
+  //   // Branco
+  //   if (vote.equals("br")) {
+  //     print("Você está votando branco\n");
+  //     print("(1) Confirmar\n(2) Mudar voto");
+  //     int confirm = readInt();
+  //     if (confirm == 1) {
+  //       voter.vote(0, eleicao, "Senate", true);
+  //       return true;
+  //     } else
+  //       return voteSenate(voter, counter);
+  //   } else {
+  //     try {
+  //       int voteNumber = Integer.parseInt(vote);
+  //       // Nulo
+  //       if (voteNumber == 0) {
+  //         print("Você está votando nulo\n");
+  //         print("(1) Confirmar\n(2) Mudar voto\n");
+  //         int confirm = readInt();
+  //         if (confirm == 1) {
+  //           voter.vote(0, eleicao, "Senate", false);
+  //           return true;
+  //         } else
+  //           return voteSenate(voter, counter);
+  //       }
 
-        // Normal
-        Senate candidate = currentElection.getSenateByNumber(voter.state, voteNumber);
-        if (candidate == null) {
-          print("Nenhum candidato encontrado com este número, tente novamente");
-          print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
-          return voteSenate(voter, counter);
-        }
-        print(candidate.name + " do " + candidate.party + "(" + candidate.state + ")\n");
-        print("(1) Confirmar\n(2) Mudar voto");
-        int confirm = readInt();
-        if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "Senate", false);
-          return true;
-        } else if (confirm == 2)
-          return voteSenate(voter, counter);
-      } catch (Warning e) {
-        print(e.getMessage());
-        return voteSenate(voter, counter);
-      } catch (Error e) {
-        print(e.getMessage());
-        throw e;
-      } catch (Exception e) {
-        print("Ocorreu um erro inesperado");
-        return false;
-      }
-    }
-    return true;
+  //       // Normal
+  //       Senate candidate = eleicao.getSenateByNumber(voter.state, voteNumber);
+  //       if (candidate == null) {
+  //         print("Nenhum candidato encontrado com este número, tente novamente");
+  //         print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
+  //         return voteSenate(voter, counter);
+  //       }
+  //       print(candidate.name + " do " + candidate.party + "(" + candidate.state + ")\n");
+  //       print("(1) Confirmar\n(2) Mudar voto");
+  //       int confirm = readInt();
+  //       if (confirm == 1) {
+  //         voter.vote(voteNumber, eleicao, "Senate", false);
+  //         return true;
+  //       } else if (confirm == 2)
+  //         return voteSenate(voter, counter);
+  //     } catch (Warning e) {
+  //       print(e.getMessage());
+  //       return voteSenate(voter, counter);
+  //     } catch (Error e) {
+  //       print(e.getMessage());
+  //       throw e;
+  //     } catch (Exception e) {
+  //       print("Ocorreu um erro inesperado");
+  //       return false;
+  //     }
+  //   }
+  //   return true;
 
-  }
+  // }
 
   private static void voterMenu() {
     try {
       print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
-      if (!currentElection.getStatus()) {
+      if (!eleicao.getStatus()) {
         print("A eleição ainda não foi inicializada, verifique com um funcionário do TSE");
         return;
       }
@@ -474,16 +490,16 @@ public class Urna {
     /*if (candidateType == 1 && presidentCandidates.size() == 10) {
       print("Número de candidatos maximo para presidencia atingido");
       addCandidate(tseProfessional);
-    } else if (candidateType == 2  && currentElection.federalDeputyCandidates.size() == 50) {
+    } else if (candidateType == 2  && eleicao.federalDeputyCandidates.size() == 50) {
       print("Número de candidatos maximo para deputado federal atingido");
       addCandidate(tseProfessional);
-    } else if (candidateType == 3 && currentElection.governorCandidates.size() == 10) {
+    } else if (candidateType == 3 && eleicao.governorCandidates.size() == 10) {
       print("Número de candidatos maximo para governador atingido");
       addCandidate(tseProfessional);
-    } else if (candidateType == 4 && currentElection.senateCandidates.size() == 10) {
+    } else if (candidateType == 4 && eleicao.senateCandidates.size() == 10) {
       print("Número de candidatos maximo para senador atingido");
       addCandidate(tseProfessional);
-    } else if (candidateType == 5 && currentElection.mayorCandidates.size() == 10) {
+    } else if (candidateType == 5 && eleicao.mayorCandidates.size() == 10) {
       print("Número de candidatos maximo para senador atingido");
       addCandidate(tseProfessional);
     }*/
@@ -560,7 +576,7 @@ public class Urna {
     if (save == 1 && candidate != null) {
       print("Insira a senha da urna");
       String pwd = readString();
-      tseProfessional.addCandidate(candidate, currentElection, pwd);
+      tseProfessional.addCandidate(candidate, eleicao, pwd);
       print("Candidato cadastrado com sucesso");
     }
   }
@@ -586,7 +602,7 @@ public class Urna {
     if (candidateType == 2) {
       print("Qual o estado do candidato?");
       String state = readString();
-      UrnaEstadual urnaEstado = UrnasMap.get(candidate.state);
+      UrnaEstadual urnaEstado = UrnasMap.get(state);
       candidate = urnaEstado.federalDeputyCandidates.get(number);
       if (candidate == null) {
         print("Candidato não encontrado");
@@ -598,7 +614,7 @@ public class Urna {
     }else if (candidateType == 4) {
       print("Qual o estado do candidato?");
       String state = readString();
-      UrnaEstadual urnaEstado = UrnasMap.get(candidate.state);
+      UrnaEstadual urnaEstado = UrnasMap.get(state);
       candidate = urnaEstado.federalDeputyCandidates.get(number);
       if (candidate == null) {
         print("Candidato não encontrado");
@@ -626,7 +642,7 @@ public class Urna {
       print("Qual a cidade do candidato?");
       String city = readString();
       UrnaEstadual urnaEstado = UrnasMap.get(state);
-      candidate = urnaEstado.MayorCandidates.get(city + number);
+      candidate = urnaEstado.mayorCandidates.get(city + number);
       if (candidate == null) {
         print("Candidato não encontrado");
         return;
@@ -651,7 +667,7 @@ public class Urna {
     if (remove == 1) {
       print("Insira a senha da urna:");
       String pwd = readString();
-      tseProfessional.removeCandidate(candidate, pwd);
+      tseProfessional.removeCandidate(candidate, eleicao, pwd);
       print("Candidato removido com sucesso");
     }
   }
@@ -660,7 +676,7 @@ public class Urna {
     try {
       print("Insira a senha da urna");
       String pwd = readString();
-      tseProfessional.startSession(pwd);
+      tseProfessional.startSession(eleicao, pwd);
       print("Sessão inicializada");
       print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
     } catch (Warning e) {
@@ -672,7 +688,7 @@ public class Urna {
     try {
       print("Insira a senha da urna:");
       String pwd = readString();
-      tseProfessional.endSession(pwd);
+      tseProfessional.endSession(eleicao, pwd);
       print("Sessão finalizada com sucesso");
       print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
     } catch (Warning e) {
@@ -684,7 +700,7 @@ public class Urna {
     try {
       print("Insira a senha da urna");
       String pwd = readString();
-      print(tseProfessional.getFinalResult(pwd));
+      print(tseProfessional.getFinalResult(eleicao, pwd));
       print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
     } catch (Warning e) {
       print(e.getMessage());

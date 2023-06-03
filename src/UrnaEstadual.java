@@ -1,16 +1,32 @@
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.text.DecimalFormat;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class UrnaEstadual {
+  public static  Election eleicao;
+
+  public static String estado = "";
+
+  public static class Builder {
+    protected Election eleicao;
+
+    public Builder election(Election election) {
+      this.eleicao = election;
+      return this;
+    }
+  }
+
+
+
+
+    private static final BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
 
     public Map<Integer, FederalDeputy> federalDeputyCandidates = new HashMap<Integer, FederalDeputy>();
   
     public Map<Integer, Governor> governorCandidates = new HashMap<Integer, Governor>();
 
-    public Map<String, Mayor> mayorCandidates = new HashMap<String, Mayor>();
+    public Map<Integer, Mayor> mayorCandidates = new HashMap<Integer, Mayor>();
 
     public Map<Integer, Senate> senateCandidates = new HashMap<Integer, Senate>();
 
@@ -54,7 +70,7 @@ public class UrnaEstadual {
       print("(1) Confirmar\n(2) Mudar voto");
       int confirm = readInt();
       if (confirm == 1) {
-        voter.vote(0, currentElection, "Governor", true);
+        voter.vote(0, eleicao, "Governor", true);
         return true;
       } else
         voteGovernor(voter);
@@ -67,14 +83,14 @@ public class UrnaEstadual {
           print("(1) Confirmar\n(2) Mudar voto");
           int confirm = readInt();
           if (confirm == 1) {
-            voter.vote(0, currentElection, "Governor", false);
+            voter.vote(0, eleicao, "Governor", false);
             return true;
           } else
             voteGovernor(voter);
         }
 
         // Normal
-        Governor candidate = currentElection.getGovernorByNumber(voter.state, voteNumber);
+        Governor candidate = eleicao.getGovernorByNumber(voter.state, voteNumber);
         if (candidate == null) { 
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
@@ -84,7 +100,7 @@ public class UrnaEstadual {
         print("(1) Confirmar\n(2) Mudar voto");
         int confirm = readInt();
         if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "Governor", false);
+          voter.vote(voteNumber, eleicao, "Governor", false);
           return true;
         } else if (confirm == 2)
           return voteGovernor(voter);
@@ -115,7 +131,7 @@ public class UrnaEstadual {
       print("(1) Confirmar\n(2) Mudar voto");
       int confirm = readInt();
       if (confirm == 1) {
-        voter.vote(0, currentElection, "Mayor", true);
+        voter.vote(0, eleicao, "Mayor", true);
         return true;
       } else
         voteMayor(voter);
@@ -128,14 +144,14 @@ public class UrnaEstadual {
           print("(1) Confirmar\n(2) Mudar voto");
           int confirm = readInt();
           if (confirm == 1) {
-            voter.vote(0, currentElection, "Mayor", false);
+            voter.vote(0, eleicao, "Mayor", false);
             return true;
           } else
             voteMayor(voter);
         }
 
         // Normal
-        Mayor candidate = currentElection.getMayorByNumber(voter.city, voteNumber);
+        Mayor candidate = eleicao.getMayorByNumber(voter.state, voter.city, voteNumber);
         if (candidate == null) { 
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
@@ -145,7 +161,7 @@ public class UrnaEstadual {
         print("(1) Confirmar\n(2) Mudar voto");
         int confirm = readInt();
         if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "Mayor", false);
+          voter.vote(voteNumber, eleicao, "Mayor", false);
           return true;
         } else if (confirm == 2)
           return voteMayor(voter);
@@ -175,7 +191,7 @@ public class UrnaEstadual {
       print("(1) Confirmar\n(2) Mudar voto");
       int confirm = readInt();
       if (confirm == 1) {
-        voter.vote(0, currentElection, "FederalDeputy", true);
+        voter.vote(0, eleicao, "FederalDeputy", true);
         return true;
       } else
         return voteFederalDeputy(voter, counter);
@@ -188,14 +204,14 @@ public class UrnaEstadual {
           print("(1) Confirmar\n(2) Mudar voto\n");
           int confirm = readInt();
           if (confirm == 1) {
-            voter.vote(0, currentElection, "FederalDeputy", false);
+            voter.vote(0, eleicao, "FederalDeputy", false);
             return true;
           } else
             return voteFederalDeputy(voter, counter);
         }
 
         // Normal
-        FederalDeputy candidate = currentElection.getFederalDeputyByNumber(voter.state, voteNumber);
+        FederalDeputy candidate = eleicao.getFederalDeputyByNumber(voter.state, voteNumber);
         if (candidate == null) {
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
@@ -205,7 +221,8 @@ public class UrnaEstadual {
         print("(1) Confirmar\n(2) Mudar voto");
         int confirm = readInt();
         if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "FederalDeputy", false);
+          voter.vote(voteNumber, eleicao, "FederalDeputy", false);
+          print(" ");
           return true;
         } else if (confirm == 2)
           return voteFederalDeputy(voter, counter);
@@ -236,7 +253,7 @@ public class UrnaEstadual {
       print("(1) Confirmar\n(2) Mudar voto");
       int confirm = readInt();
       if (confirm == 1) {
-        voter.vote(0, currentElection, "Senate", true);
+        voter.vote(0, eleicao, "Senate", true);
         return true;
       } else
         return voteSenate(voter, counter);
@@ -249,14 +266,14 @@ public class UrnaEstadual {
           print("(1) Confirmar\n(2) Mudar voto\n");
           int confirm = readInt();
           if (confirm == 1) {
-            voter.vote(0, currentElection, "Senate", false);
+            voter.vote(0, eleicao, "Senate", false);
             return true;
           } else
             return voteSenate(voter, counter);
         }
 
         // Normal
-        Senate candidate = currentElection.getSenateByNumber(voter.state, voteNumber);
+        Senate candidate = eleicao.getSenateByNumber(voter.state, voteNumber);
         if (candidate == null) {
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
@@ -266,7 +283,7 @@ public class UrnaEstadual {
         print("(1) Confirmar\n(2) Mudar voto");
         int confirm = readInt();
         if (confirm == 1) {
-          voter.vote(voteNumber, currentElection, "Senate", false);
+          voter.vote(voteNumber, eleicao, "Senate", false);
           return true;
         } else if (confirm == 2)
           return voteSenate(voter, counter);
