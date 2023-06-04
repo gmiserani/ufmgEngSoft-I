@@ -1,7 +1,11 @@
+/* Classe adicionada
+ * Um senador eh um candidato valido com
+ * nome, partido, numero e estado
+ */
 import java.util.Set;
 
-public class Senate extends Candidate{
-    protected final String state;
+public class Senate extends Candidate {
+  protected final String state;
 
   public static class Builder {
     protected String name;
@@ -92,7 +96,7 @@ public class Senate extends Candidate{
     return this.toString().equals(fd.toString());
   }
 
-  public String getState(){
+  public String getState() {
     return this.state;
   }
 }

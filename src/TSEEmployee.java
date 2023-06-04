@@ -1,4 +1,7 @@
-// Gerencia a preparação do ambiente (candidatos)
+/* Classe nao modificada
+*  Responsavel por gerenciar a preparacao do ambiente, como
+*  adicionar e remover candidatos
+*/
 public class TSEEmployee extends TSEProfessional {
   public void addCandidate(Candidate candidate, Election election, String password) {
     if (candidate instanceof President)

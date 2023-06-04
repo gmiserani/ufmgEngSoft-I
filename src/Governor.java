@@ -1,3 +1,7 @@
+/* Classe adicionada
+ * Um governador eh um candidato valido com
+ * nome, partido, numero e estado
+ */
 import java.util.Set;
 
 public class Governor extends Candidate{
@@ -8,17 +12,17 @@ public class Governor extends Candidate{
         protected String party;
         protected int number;
         protected String state;
-    
+
         public Builder name(String name) {
           this.name = name;
           return this;
         }
-    
+
         public Builder party(String party) {
           this.party = party;
           return this;
         }
-    
+
         public Builder number(int number) {
           this.number = number;
           return this;
@@ -28,23 +32,23 @@ public class Governor extends Candidate{
             this.state = state;
             return this;
         }
-    
+
         public Governor build() {
           if (number <= 0)
             throw new IllegalArgumentException("number mustn't be less than or equal to 0");
-    
+
           if (name == null)
             throw new IllegalArgumentException("name mustn't be null");
-    
+
           if (name.isEmpty())
             throw new IllegalArgumentException("name mustn't be empty");
-    
+
           if (party == null)
             throw new IllegalArgumentException("party mustn't be null");
-    
+
           if (party.isEmpty())
             throw new IllegalArgumentException("party mustn't be empty");
-          
+
             if (state == null)
             throw new IllegalArgumentException("state mustn't be null");
 
@@ -64,7 +68,7 @@ public class Governor extends Candidate{
               this.state);
         }
       }
-    
+
       protected Governor(
           String name,
           String party,

@@ -1,10 +1,16 @@
+/* Classe adicionada
+ * A UrnaEstadual eh referente a votacao estadual, ela tem a
+ * responsabilidade de tornar os candidatos de cada estado
+ * visiveis apenas para a instancia de urna estadual daquele
+ * estado
+ */
 import java.util.HashMap;
 import java.util.Map;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class UrnaEstadual {
-  public static  Election eleicao;
+  public static Election eleicao;
 
   public static String estado = "";
 
@@ -17,24 +23,21 @@ public class UrnaEstadual {
     }
   }
 
+  private static final BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
 
+  public Map<Integer, FederalDeputy> federalDeputyCandidates = new HashMap<Integer, FederalDeputy>();
 
+  public Map<Integer, Governor> governorCandidates = new HashMap<Integer, Governor>();
 
-    private static final BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
+  public Map<Integer, Mayor> mayorCandidates = new HashMap<Integer, Mayor>();
 
-    public Map<Integer, FederalDeputy> federalDeputyCandidates = new HashMap<Integer, FederalDeputy>();
-  
-    public Map<Integer, Governor> governorCandidates = new HashMap<Integer, Governor>();
+  public Map<Integer, Senate> senateCandidates = new HashMap<Integer, Senate>();
 
-    public Map<Integer, Mayor> mayorCandidates = new HashMap<Integer, Mayor>();
+  public UrnaEstadual() {
 
-    public Map<Integer, Senate> senateCandidates = new HashMap<Integer, Senate>();
+  }
 
-    public UrnaEstadual(){
-
-    }
-
-    public static void print(String output) {
+  public static void print(String output) {
     System.out.println(output);
   }
 
@@ -91,7 +94,7 @@ public class UrnaEstadual {
 
         // Normal
         Governor candidate = eleicao.getGovernorByNumber(voter.state, voteNumber);
-        if (candidate == null) { 
+        if (candidate == null) {
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
           return voteGovernor(voter);
@@ -152,7 +155,7 @@ public class UrnaEstadual {
 
         // Normal
         Mayor candidate = eleicao.getMayorByNumber(voter.state, voter.city, voteNumber);
-        if (candidate == null) { 
+        if (candidate == null) {
           print("Nenhum candidato encontrado com este número, tente novamente");
           print("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n");
           return voteMayor(voter);

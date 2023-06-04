@@ -1,3 +1,8 @@
+/* Classe modificada:
+ * A classe Urna eh encarregada de gerenciar o flow da votacao,
+ * ela guarda as informacoes das votacoes nacionais e redireciona
+ * o usuario para as votacoes estaduais atraves do Broker
+ */
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Map;
@@ -6,8 +11,8 @@ import java.io.InputStreamReader;
 import java.io.File;
 import static java.lang.System.exit;
 
-public class Urna{
-  public static  Election eleicao;
+public class Urna {
+  public static Election eleicao;
 
   public static class Builder {
     protected Election eleicao;
@@ -18,11 +23,6 @@ public class Urna{
     }
   }
 
-
-
-
-
-
   private static final BufferedReader scanner = new BufferedReader(new InputStreamReader(System.in));
 
   private static boolean exit = false;
@@ -31,6 +31,7 @@ public class Urna{
 
   private static final Map<String, Voter> VoterMap = new HashMap<>();
 
+  // Hash com urnas estaduais, uma para cada estado
   public static final Map<String, UrnaEstadual> UrnasMap = new HashMap<>();
 
   public static Map<Integer, President> presidentCandidates = new HashMap<Integer, President>();
@@ -83,7 +84,7 @@ public class Urna{
   public static Voter getVoter() {
     ServerProxy proxy = new ServerProxy(VoterMap);
     Voter v = proxy.returnResult();
-    return v; 
+    return v;
   }
 
   private static boolean votePresident(Voter voter) {
@@ -105,7 +106,6 @@ public class Urna{
     } else {
       try {
         int voteNumber = Integer.parseInt(vote);
-        // Nulo
         if (voteNumber == 0) {
           print("Você está votando nulo\n");
           print("(1) Confirmar\n(2) Mudar voto");
@@ -117,7 +117,6 @@ public class Urna{
             votePresident(voter);
         }
 
-        // Normal
         President candidate = eleicao.getPresidentByNumber(voteNumber);
         if (candidate == null) {
           print("Nenhum candidato encontrado com este número, tente novamente");
@@ -147,8 +146,8 @@ public class Urna{
 
   }
 
-  public static UrnaEstadual estateElections(Voter voter){
-    //Chamar o broker que vai retornar a urna daquele estado
+  // Broker redireciona usuario para a votacao estadual adequada
+  public static UrnaEstadual estateElections(Voter voter) {
     BrokerServer broker = new BrokerServer(voter.state, UrnasMap);
     UrnaEstadual urnaEstadual = broker.returnResult();
     return urnaEstadual;
@@ -238,18 +237,21 @@ public class Urna{
     print("(4) Senador");
     print("(5) Prefeito");
     int candidateType = readInt();
-  
+
     if (candidateType > 5 || candidateType < 1) {
       print("Comando inválido");
       addCandidate(tseProfessional);
     }
 
-    for(Map.Entry<String, UrnaEstadual> stateUrnas : UrnasMap.entrySet()){
+    /*Feature adicionada: ha um limite superior para o numero de candidatos
+     * que podem ser adicionados a cada categoria
+    */
+    for (Map.Entry<String, UrnaEstadual> stateUrnas : UrnasMap.entrySet()) {
       UrnaEstadual UrnaEstado = stateUrnas.getValue();
       if (candidateType == 1 && presidentCandidates.size() >= 10) {
         print("Número de candidatos maximo para presidencia atingido");
         addCandidate(tseProfessional);
-      } else if (candidateType == 2  && UrnaEstado.federalDeputyCandidates.size() >= 50) {
+      } else if (candidateType == 2 && UrnaEstado.federalDeputyCandidates.size() >= 10) {
         print("Número de candidatos maximo para deputado federal atingido");
         addCandidate(tseProfessional);
       } else if (candidateType == 3 && UrnaEstado.governorCandidates.size() >= 10) {
@@ -288,7 +290,7 @@ public class Urna{
           .party(party)
           .state(state)
           .build();
-    } else if(candidateType == 3) {
+    } else if (candidateType == 3) {
       print("Qual o estado do candidato?");
       String state = readString();
 
@@ -299,7 +301,7 @@ public class Urna{
           .party(party)
           .state(state)
           .build();
-    } else if(candidateType == 5) {
+    } else if (candidateType == 5) {
       print("Qual a cidade do candidato?");
       String cidade = readString();
 
@@ -310,8 +312,7 @@ public class Urna{
           .party(party)
           .city(cidade)
           .build();
-    }
-    else if (candidateType == 4) {
+    } else if (candidateType == 4) {
       print("Qual o estado do candidato?");
       String state = readString();
 
@@ -322,7 +323,7 @@ public class Urna{
           .party(party)
           .state(state)
           .build();
-    }else if (candidateType == 1) {
+    } else if (candidateType == 1) {
       print("\nCadastrar o candidato a presidente " + name + " Nº " + number + " do " + party + "?");
       candidate = new President.Builder()
           .name(name)
@@ -371,7 +372,7 @@ public class Urna{
       print("/Remover o candidato a deputado federal " + candidate.name + " Nº " + candidate.number + " do "
           + candidate.party + "("
           + ((FederalDeputy) candidate).state + ")?");
-    }else if (candidateType == 4) {
+    } else if (candidateType == 4) {
       print("Qual o estado do candidato?");
       String state = readString();
       UrnaEstadual urnaEstado = UrnasMap.get(state);
@@ -383,7 +384,7 @@ public class Urna{
       print("/Remover o candidato a senador " + candidate.name + " Nº " + candidate.number + " do "
           + candidate.party + "("
           + ((Senate) candidate).state + ")?");
-    }else if (candidateType == 3) {
+    } else if (candidateType == 3) {
       print("Qual o estado do candidato?");
       String state = readString();
       UrnaEstadual urnaEstado = UrnasMap.get(state);
@@ -394,9 +395,9 @@ public class Urna{
       }
       print("/Remover o candidato a governador " + candidate.name + " Nº " + candidate.number + " do "
           + candidate.party + "("
-          + ((Governor) candidate).state + ")?"); 
-    
-    }else if (candidateType == 5) {
+          + ((Governor) candidate).state + ")?");
+
+    } else if (candidateType == 5) {
       print("Qual o estado do candidato?");
       String state = readString();
       print("Qual a cidade do candidato?");
@@ -409,10 +410,9 @@ public class Urna{
       }
       print("/Remover o candidato a prefeito " + candidate.name + " Nº " + candidate.number + " do "
           + candidate.party + "("
-          + ((Mayor) candidate).city + ")?"); 
-    
-    }
-    else if (candidateType == 1) {
+          + ((Mayor) candidate).city + ")?");
+
+    } else if (candidateType == 1) {
       candidate = presidentCandidates.get(number);
       if (candidate == null) {
         print("Candidato não encontrado");

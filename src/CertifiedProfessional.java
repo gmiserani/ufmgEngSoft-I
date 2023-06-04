@@ -1,4 +1,7 @@
-// Gerencia o processo eleitoral
+/* Classe nao modificada
+ * Responsavel por gerenciar o processo eleitoral
+ */
+
 public class CertifiedProfessional extends TSEProfessional {
   public void startSession(Election election, String password) {
     election.start(password);

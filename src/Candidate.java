@@ -1,3 +1,7 @@
+/* Classe reutilizada
+ * Um Candidate eh qualquer candidato valido para participar de uma
+ * eleicao, possuindo nome, partido e numero
+ */
 public class Candidate {
   protected final String name;
 

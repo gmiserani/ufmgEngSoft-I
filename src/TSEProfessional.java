@@ -1,3 +1,5 @@
+/* Classe nao modificada: usada para validar o profissional
+*  encarregado de gerenciar a urna */
 public class TSEProfessional {
   protected final String user;
 

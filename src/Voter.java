@@ -1,3 +1,4 @@
+// Classe nao modificada: usada para guardar as informacoes do usuario
 public class Voter {
   protected final String electoralCard;
 
@@ -46,8 +47,6 @@ public class Voter {
       if (state.isEmpty())
         throw new IllegalArgumentException("state mustn't be empty");
 
-      
-
       return new Voter(electoralCard, name, state);
     }
   }
@@ -81,7 +80,7 @@ public class Voter {
           throw new Warning("Número de candidato inválido");
         election.computeVote(candidate, this);
       }
-      else if (type.equals("Governor"))
+    else if (type.equals("Governor"))
       if (number == 0)
         election.computeNullVote("Governor", this);
       else if (isProtestVote)
@@ -92,7 +91,7 @@ public class Voter {
           throw new Warning("Número de candidato inválido");
         election.computeVote(candidate, this);
       }
-      else if (type.equals("Senate"))
+    else if (type.equals("Senate"))
       if (number == 0)
         election.computeNullVote("Senate", this);
       else if (isProtestVote)
@@ -102,7 +101,8 @@ public class Voter {
         if (candidate == null)
           throw new Warning("Número de candidato inválido");
         election.computeVote(candidate, this);
-      }else if (type.equals("Mayor"))
+      }
+    else if (type.equals("Mayor"))
       if (number == 0)
         election.computeNullVote("Mayor", this);
       else if (isProtestVote)

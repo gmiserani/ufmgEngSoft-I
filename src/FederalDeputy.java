@@ -1,3 +1,7 @@
+/* Classe nao modificada
+ * Um deputado federal continua sendo um candidato valido com
+ * nome, partido, numero e estado
+ */
 import java.util.Set;
 
 public class FederalDeputy extends Candidate {

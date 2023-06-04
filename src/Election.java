@@ -1,3 +1,12 @@
+/* Classe reutilizada
+ * Classe utilizada para guardar as informacoes referentes a todas aos
+ * votos de todas as categorias de candidatos, por exemplo, adicionar e
+ * remover candidatos, computar quantos votos cada um obtem, alem dos
+ * votos brancos e nulos
+ * A classe foi extendida para suportar todas as funçoes ja existentes
+ * tambem para governador, prefeito e senador
+*/
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,10 +17,11 @@ public class Election {
   public static void print(String output) {
     System.out.println(output);
   }
+
   private final String password;
 
   public Urna urna;
- 
+
   private boolean status;
 
   private int nullPresidentVotes;
@@ -34,10 +44,8 @@ public class Election {
 
   private int senateProtestVotes;
 
-  // Na prática guardaria uma hash do eleitor
   private Map<Voter, Integer> votersPresident = new HashMap<Voter, Integer>();
 
-  // Na prática guardaria uma hash do eleitor
   private Map<Voter, Integer> votersFederalDeputy = new HashMap<Voter, Integer>();
 
   private Map<Voter, Integer> votersGovernor = new HashMap<Voter, Integer>();
@@ -118,7 +126,7 @@ public class Election {
         votersFederalDeputy.put(voter, this.votersFederalDeputy.get(voter) + 1);
         tempFDVote.remove(voter);
       }
-    }else if (candidate instanceof Senate) {
+    } else if (candidate instanceof Senate) {
       if (votersSenate.get(voter) != null && votersSenate.get(voter) >= 2)
         throw new StopTrap("Você não pode votar mais de uma vez para senador");
 
@@ -133,14 +141,13 @@ public class Election {
         votersSenate.put(voter, this.votersSenate.get(voter) + 1);
         tempSVote.remove(voter);
       }
-    }
-    else if (candidate instanceof Governor) {
+    } else if (candidate instanceof Governor) {
       if (votersGovernor.get(voter) != null && votersGovernor.get(voter) >= 1)
         throw new StopTrap("Você não pode votar mais de uma vez para governador");
 
       candidate.numVotes++;
       votersGovernor.put(voter, 1);
-    }else if (candidate instanceof Mayor) {
+    } else if (candidate instanceof Mayor) {
       if (votersMayor.get(voter) != null && votersMayor.get(voter) >= 1)
         throw new StopTrap("Você não pode votar mais de uma vez para prefeito");
 
@@ -166,11 +173,11 @@ public class Election {
       else
         votersFederalDeputy.put(voter, this.votersFederalDeputy.get(voter) + 1);
     } else if (type.equals("Governor")) {
-        if (this.votersGovernor.get(voter) != null && votersGovernor.get(voter) >= 1)
-          throw new StopTrap("Você não pode votar mais de uma vez para governador");
+      if (this.votersGovernor.get(voter) != null && votersGovernor.get(voter) >= 1)
+        throw new StopTrap("Você não pode votar mais de uma vez para governador");
 
-        this.nullGovernorVotes++;
-        votersGovernor.put(voter, 1);
+      this.nullGovernorVotes++;
+      votersGovernor.put(voter, 1);
     } else if (type.equals("Mayor")) {
       if (this.votersMayor.get(voter) != null && votersMayor.get(voter) >= 1)
         throw new StopTrap("Você não pode votar mais de uma vez para prefeito");
@@ -207,18 +214,18 @@ public class Election {
       else
         votersFederalDeputy.put(voter, this.votersFederalDeputy.get(voter) + 1);
     } else if (type.equals("Governor")) {
-        if (this.votersGovernor.get(voter) != null && votersGovernor.get(voter) >= 1)
-          throw new StopTrap("Você não pode votar mais de uma vez para governador");
+      if (this.votersGovernor.get(voter) != null && votersGovernor.get(voter) >= 1)
+        throw new StopTrap("Você não pode votar mais de uma vez para governador");
 
-        this.governorProtestVotes++;
-        votersGovernor.put(voter, 1);
-    }else if (type.equals("Mayor")) {
+      this.governorProtestVotes++;
+      votersGovernor.put(voter, 1);
+    } else if (type.equals("Mayor")) {
       if (this.votersMayor.get(voter) != null && votersMayor.get(voter) >= 1)
         throw new StopTrap("Você não pode votar mais de uma vez para prefeito");
 
       this.mayorProtestVotes++;
       votersMayor.put(voter, 1);
-  } else if (type.equals("Senate")) {
+    } else if (type.equals("Senate")) {
       if (this.votersSenate.get(voter) != null && this.votersSenate.get(voter) >= 2)
         throw new StopTrap("Você não pode votar mais de uma vez para senado");
 
@@ -299,7 +306,6 @@ public class Election {
     return urnaEstado.federalDeputyCandidates.get(number);
   }
 
-
   public void addFederalDeputyCandidate(FederalDeputy candidate, String password) {
     UrnaEstadual urnaEstado = urna.UrnasMap.get(candidate.state);
     if (!isValid(password))
@@ -365,7 +371,6 @@ public class Election {
     urnaEstado.governorCandidates.remove(candidate.number);
   }
 
-
   public String getResults(String password) {
     if (!isValid(password))
       throw new Warning("Senha inválida");
@@ -391,16 +396,21 @@ public class Election {
       presidentRank.add(candidate);
     }
 
+    /*
+     * Parte modificada:
+     * Calcula votos separados para cada urna: urna nacional e urnas
+     * estaduais implementadas pelo Broker
+     */
     int totalVotesFD = federalDeputyProtestVotes + nullFederalDeputyVotes;
     int totalVotesM = mayorProtestVotes + nullMayorVotes;
     int totalVotesS = senateProtestVotes + nullSenateVotes;
     int totalVotesG = governorProtestVotes + nullGovernorVotes;
-    for(Map.Entry<String, UrnaEstadual> stateUrnas : urna.UrnasMap.entrySet()){
+    for (Map.Entry<String, UrnaEstadual> stateUrnas : urna.UrnasMap.entrySet()) {
       UrnaEstadual UrnaEstado = stateUrnas.getValue();
       for (Map.Entry<Integer, FederalDeputy> candidateEntry : UrnaEstado.federalDeputyCandidates.entrySet()) {
-      FederalDeputy candidate = candidateEntry.getValue();
-      totalVotesFD += candidate.numVotes;
-      federalDeputyRank.add(candidate);
+        FederalDeputy candidate = candidateEntry.getValue();
+        totalVotesFD += candidate.numVotes;
+        federalDeputyRank.add(candidate);
       }
 
       for (Map.Entry<Integer, Mayor> candidateEntry : UrnaEstado.mayorCandidates.entrySet()) {
@@ -421,7 +431,6 @@ public class Election {
         governorRank.add(candidate);
       }
     }
-    
 
     var sortedFederalDeputyRank = federalDeputyRank.stream()
         .sorted((o1, o2) -> o1.numVotes == o2.numVotes ? 0 : o1.numVotes < o2.numVotes ? 1 : -1)

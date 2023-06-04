@@ -1,4 +1,8 @@
-public class President extends Candidate {
+/* Classe nao modificada
+ * Um presidente continua sendo um candidato valido com
+ * nome, partido e numero
+ */
+  public class President extends Candidate {
   public static class Builder {
     protected String name;
     protected String party;
