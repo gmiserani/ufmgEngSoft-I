@@ -18,7 +18,7 @@
 
 OBS:
 
-- O sistema já vem inicializado com 2 candidatos a presidente e 3 a deputado federal
+- O sistema já vem inicializado com 2 candidatos a presidente; 3 a deputado federal, sendo dois de MG e um de SP; 3 a governador, com dois de MG e um do ES; 3 ao senado, com 2 de MG e um do ES; 3 a prefeitura, com dois de BH e um de Uberlândia.
 - O sistema já vem com os dois gestores (de sessão e de candidaturas)
 - O sistema já vem com todos os eleitores possíveis para utilizá-los basta checar o arquivo `voterLoad.txt`
 
@@ -39,13 +39,15 @@ Para uma execução teste podemos seguir o seguinte passo:
 - Escolher a opção 1 e inserir a senha da urna (`password`) para iniciar a votação
 - Escolher a opção 0 para voltar ao menu inicial
 - Escolher votar (opção 1) e inserir o nº `123456789012` do eleitor de teste
-- Selecionar sim e votar respectivamente `123` , `12345` e `br`
-- Escolher votar (opção 1) e inserir o nº `268888719264` (outro eleitor de teste)
-- Selecionar sim e votar respectivamente `123` , `54321` e `12345`
-- Escolher votar (opção 1) e inserir o nº `638991919941` (outro eleitor de teste)
-- Selecionar sim e votar respectivamente `000` , `12345` e `00000`
-- Escolher votar (opção 1) e inserir o nº `965575671024` (outro eleitor de teste)
-- Selecionar sim e votar respectivamente `123` , `12345` e `00000`
+- Insira a cidade do eleito
+- Aperte 1 para confirmar o usuário
+- Inicializa então a votação. Nela pode inserir o número do candidato, "br" para votar branco ou 0 para votar nulo.
+- A primeira votação é a do presidente, onde pode escolher qualquer cadidato ('123', por exemplo). Uma vez iserido o voto, basta apertar 1 para confirmar
+- A partir de agora, os candidatos dependem do estado.
+- A segunda é o primeiro de 2 para deputado federal. Essa votação seguem como a do presidente, com a diferença de que, caso seja inserido o número de um candidato de um estado diferente do estado do eleitor, retornará uma mensagem de erro dizendo que tal candidato não foi encontrado. 
+- As votações seguintes seguem a mesma ideia.
+- Uma vez que votar para todos os cargos, você será retornado ao inicio, onde poderá realizar uma nova votacao com um novo eleitor ou encerrar a eleição.
+- Nesse último caso basta:
 - No menu inicial, selecionar a opção 2 e logar com o user `cert`
 - Escolher a opção 2 e inserir a senha da urna (`password`) para encerrar a votação
 - Escolher a opção 3 e inserir a senha da urna (`password`) para mostrar o resultado final da votação
